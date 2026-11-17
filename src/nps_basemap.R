@@ -1,14 +1,32 @@
 # NPS Park Tiles basemap helpers used by the MORA WSVA figures.
 # Sourced automatically by setup.R (all files in src/).
 
+#' Public Park Tiles access token
+#'
+#' Uses the `NPS_TILES_TOKEN` environment variable if set; otherwise reads the
+#' public token NPS publishes in its npmap.js library (search "atlas-user").
+#' Cached for the session after the first lookup.
+get_nps_tiles_token <- function(){
+  tok <- Sys.getenv("NPS_TILES_TOKEN", unset = getOption("nps_tiles_token", ""))
+  if (nzchar(tok)) return(tok)
+  js <- paste(readLines("https://www.nps.gov/lib/npmap.js/4.2.1/npmap.min.js", warn = FALSE),
+              collapse = "")
+  tok <- regmatches(js, regexpr("pk\\.eyJ[A-Za-z0-9._-]+", js))
+  if (length(tok) == 0) stop("Couldn't find the Park Tiles token in npmap.min.js; set NPS_TILES_TOKEN.")
+  options(nps_tiles_token = tok)
+  tok
+}
+
+
 #' Download the NPS Park Tiles basemap for an area
 #'
 #' Park Tiles is the National Park Service's own basemap
 #' (https://www.nps.gov/maps/tools/park-tiles/). NPS serves it from its Atlas
 #' tile server; the style IDs and public access token below come from NPS's
-#' map library (npmap.js 4.2.1, the code behind the Park Tiles viewer). If NPS
-#' rotates the token, update `nps_token` from
-#' https://www.nps.gov/lib/npmap.js/4.2.1/npmap.min.js (search "atlas-user").
+#' map library (npmap.js 4.2.1, the code behind the Park Tiles viewer). The
+#' public access token is read from npmap.js at run time by
+#' `get_nps_tiles_token()` rather than stored here, so it stays current if NPS
+#' rotates it (and GitHub secret scanning doesn't flag it).
 #'
 #' @param aoi sf object to cover, e.g. from `getParkBoundary()`.
 #' @param style `"standard"`, `"light"` or `"slate"`.
@@ -21,7 +39,7 @@ get_nps_basemap <- function(aoi, style = "standard", buffer_km = 2, zoom = NULL)
   style_ids <- c(standard = "ck58pyquo009v01p99xebegr9",
                  light = "ck5cpia2u0auf01p9vbugvcpv",
                  slate = "ck5cpvc2e0avf01p9zaw4co8o")
-  nps_token <- "pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
+  nps_token <- get_nps_tiles_token()
 
   # maptiles detects the image type from ".png" in the URL. The server rejects
   # extra query parameters, so ".png" goes in a URL fragment, which curl never
@@ -81,7 +99,7 @@ add_nps_basemaps <- function(m, styles = c("standard", "light", "slate", "imager
                  light = "ck5cpia2u0auf01p9vbugvcpv",
                  slate = "ck5cpvc2e0avf01p9zaw4co8o",
                  imagery = "ck72fwp2642dv07o7tbqinvz4")
-  nps_token <- "pk.eyJ1IjoiYXRsYXMtdXNlciIsImEiOiJjazFmdGx2bjQwMDAwMG5wZmYwbmJwbmE2In0.lWXK2UexpXuyVitesLdwUg"
+  nps_token <- get_nps_tiles_token()
 
   lm <- if (inherits(m, "mapview")) m@map else m
 
