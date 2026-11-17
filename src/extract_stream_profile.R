@@ -60,8 +60,9 @@
 #' Dijkstra, E. W. (1959). A note on two problems in connexion with graphs. 
 #' \emph{Numerische Mathematik}, 1(1), 269–271. \doi{10.1007/BF01386390}
 #' 
-#' van der Walt, V., & Morgan, D. J. (2020). Spatial Networks in R: The sfnetworks Package. 
-#' \emph{R Journal}, 12(2), 120–139.
+#' van der Meer, L., Abad, L., Gilardi, A., & Lovelace, R. (2026). sfnetworks: 
+#' Tidy geospatial networks (Version 0.6.6) [Computer software]. Comprehensive 
+#' R Archive Network. r-project.org
 #' 
 #' Hack, J. T. (1957). Studies of longitudinal stream profiles in Virginia and Maryland. 
 #' \emph{U.S. Geological Survey Professional Paper}, 294-B, 45–97.
